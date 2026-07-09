@@ -29,6 +29,8 @@ uv pip install -e .
 
 ## Quick Start
 
+Here is a neat little application of the `tree_map_prune` function to filter the leaves of a collapsable PyTree (a dictionary in this case).
+
 ```python
 import jaxtree_extensions as jte
 import jax.numpy as jnp
@@ -36,7 +38,11 @@ import jax.numpy as jnp
 # Pruning elements
 pruned, _ = jte.tree_map_prune(lambda x: x, {"a": [1, 2], "b": 3}, keep_fn=lambda x: x > 1)
 # pruned = {"a": [2], "b": 3}
+```
 
+Or batch-editing of a pseudo-NN via glob-style wildcards.
+
+```python
 # Path-based editing
 model = {"layer1": {"bias": jnp.ones(2)}, "layer2": {"bias": jnp.ones(2)}}
 zero_bias = jte.tree_at_path(model, "**/bias", replace=0.0)
