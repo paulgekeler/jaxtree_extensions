@@ -1,14 +1,49 @@
 # Jaxtree Extensions
 
-Welcome to the documentation for **Jaxtree Extensions**, a Python library designed to extend JAX's native `jax.tree_util` module with additional tree utilities.
+`jaxtree-extensions` extends JAX's native `jax.tree_util` with extra tree utilities for JAX, Equinox, and other pytree frameworks.
 
-## Overview
+## Core Utilities
 
-The goal of this library is to simplify pytree manipulation in JAX. While JAX provides fundamental building blocks like `tree_map` and `tree_flatten`, real-world workflows often require repetitive helper utilities for filtering, mapping, and structure transformations.
+| Function | Description | Comparison |
+| :--- | :--- | :--- |
+| [`tree_map_prune`](api/prune.md) | Map and filter leaves by predicate, collapsing containers. | Similar to `jax.tree_util.tree_map` but drops/collapses leaves. |
+| [`tree_select_by_path` / `tree_at_path`](api/path_select.md) | Mask or edit nodes matching wildcard path strings (e.g. `**/bias`). | Similar to `equinox.tree_at` but using glob/wildcard patterns. |
+| [`tree_zip_mismatched`](api/zip_mismatched.md) | Zip mismatched trees via intersection/padding and broadcast scalars. | Extends `jax.tree_util.tree_map` to handle structure/shape mismatches. |
+| [`tree_map_enumerate`](api/enumerate.md) | Map over a tree passing a sequential flat index to each leaf. | Similar to `jax.tree_util.tree_map` but provides automatic indices `0, 1, 2...` |
+| [`tree_compare`](api/compare.md) | Compare two trees and generate a detailed mismatch diagnostic report. | Similar to `chex.assert_trees_all_close` but returns a diagnostic `TreeDiff`. |
+| [`tree_reduce_with_path`](api/reduce_path.md) | Reduce a tree passing key-path tuples of each leaf. | Extends `jax.tree_util.tree_reduce` with path-aware context. |
 
-`jaxtree-extensions` provides a set of clean, reusable extensions to make working with pytrees more convenient and less verbose.
+## Installation
 
-## Navigation
+Install the package via PyPI:
 
-- Check out the [API Reference](api/utils.md) to explore the available utility functions.
-- Refer to the [GitHub Repository](https://github.com/paulgekeler/jaxtree_extensions) for source code and issue tracking.
+```bash
+pip install jaxtree-extensions
+```
+
+Or install locally for development:
+
+```bash
+uv pip install -e .
+```
+
+## Quick Start
+
+Here is a neat little application of the `tree_map_prune` function to filter the leaves of a collapsable PyTree (a dictionary in this case).
+
+```python
+import jaxtree_extensions as jte
+import jax.numpy as jnp
+
+# Pruning elements
+pruned, _ = jte.tree_map_prune(lambda x: x, {"a": [1, 2], "b": 3}, keep_fn=lambda x: x > 1)
+# pruned = {"a": [2], "b": 3}
+```
+
+Or batch-editing of a pseudo-NN via glob-style wildcards.
+
+```python
+# Path-based editing
+model = {"layer1": {"bias": jnp.ones(2)}, "layer2": {"bias": jnp.ones(2)}}
+zero_bias = jte.tree_at_path(model, "**/bias", replace=0.0)
+```
