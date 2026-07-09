@@ -98,4 +98,9 @@ markdown_extensions:
 nav:
   - Home: index.md
   - API Reference:
-      - Utilities: api/utils.md
+      - Pruning: api/prune.md
+      - Path Selection: api/path_select.md
+      - Mismatched Zip: api/zip_mismatched.md
+      - Map Enumerate: api/enumerate.md
+      - Comparison: api/compare.md
+      - Path Reduction: api/reduce_path.md
